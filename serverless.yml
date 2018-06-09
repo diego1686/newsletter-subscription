@@ -1,0 +1,105 @@
+service: newsletter-example
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  timeout: 120
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - s3:GetObject
+      Resource: arn:aws:s3::*:*
+
+    - Effect: 'Allow'
+      Action:
+        - 'logs:*'
+      Resource: arn:aws:logs:*:*:*
+
+    - Effect: 'Allow'
+      Action:
+        - SNS:Publish
+      Resource: '*'
+
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: '*'
+
+custom:
+  stage: ${opt:stage, opt:s, self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  userRegisteredTopic: "newsletter-user-registered-${self:custom.stage}"
+  usersTable: "newsletter-users-${self:custom.stage}"
+  csvBucket: "newsletter-users-${self:custom.stage}"
+  serverless-offline:
+    skipCacheInvalidation: true
+
+functions:
+  # ---- Subscription Services ----
+  subscribeFromAPI:
+    handler: src/handlers/subscriptionsHandler.subscribeFromAPI
+    environment:
+      userRegisteredTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userRegisteredTopic}" ] ]  }
+    events:
+      - http:
+          path: users/subscribe
+          method: post
+          cors: true
+          warmup: true
+
+  subscribeFromCSV:
+    handler: src/handlers/subscriptionsHandler.subscribeFromCSV
+    environment:
+      userRegisteredTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userRegisteredTopic}" ] ]  }
+      csvBucket: ${self:custom.csvBucket}
+    events:
+      - s3:
+          bucket: ${self:custom.csvBucket}
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .csv
+
+  # ---- Database Services ----
+  saveUser:
+    handler: src/handlers/databaseHandler.saveUser
+    environment:
+      usersTable: ${self:custom.usersTable}
+    events:
+      - sns: ${self:custom.userRegisteredTopic}
+
+  processStream:
+    handler: src/handlers/databaseHandler.processStream
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 1
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - DynamoDbTable
+              - StreamArn
+
+# ---- AWS Resources ----
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.usersTable}
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-warmup
