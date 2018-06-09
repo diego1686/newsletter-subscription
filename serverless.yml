@@ -31,6 +31,7 @@ custom:
   stage: ${opt:stage, opt:s, self:provider.stage}
   region: ${opt:region, self:provider.region}
   userRegisteredTopic: "newsletter-user-registered-${self:custom.stage}"
+  userCreatedTopic: "newsletter-user-created-${self:custom.stage}"
   usersTable: "newsletter-users-${self:custom.stage}"
   csvBucket: "newsletter-users-${self:custom.stage}"
   serverless-offline:
@@ -71,6 +72,8 @@ functions:
 
   processStream:
     handler: src/handlers/databaseHandler.processStream
+    environment:
+      userCreatedTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userCreatedTopic}" ] ]  }
     events:
       - stream:
           type: dynamodb
@@ -99,6 +102,11 @@ resources:
           WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_IMAGE
+
+    UserCreatedTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.userCreatedTopic}
 
 plugins:
   - serverless-offline

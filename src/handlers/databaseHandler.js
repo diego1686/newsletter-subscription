@@ -3,8 +3,7 @@ const AWS = require('aws-sdk')
 class DatabaseHandler {
   static async saveUser(event, context, callback) {
     try {
-      const sns = new AWS.SNS();
-      const dynamoDBClient = new AWS.DynamoDB.DocumentClient();
+      const dynamoDBClient = new AWS.DynamoDB.DocumentClient()
       const user = JSON.parse(event.Records[0].Sns.Message)
 
       const newUser = {
@@ -22,8 +21,16 @@ class DatabaseHandler {
     }
   }
 
-  static processStream(event, context, callback) {
-    console.log(event.Records[0].dynamodb.NewImage)
+  static async processStream(event, context, callback) {
+    const sns = new AWS.SNS()
+
+    const message = {
+      Message: JSON.stringify(event.Records[0].dynamodb.NewImage),
+      TopicArn: process.env.userCreatedTopicArn,
+      Subject: "User created!"
+    }
+
+    await sns.publish(message).promise()
     callback(null, "OK")
   }
 }
