@@ -22,11 +22,11 @@ class SubscriptionsHandler {
   }
 
   static async subscribeFromCSV(event, context, callback) {
-    try {
-      const sns = new AWS.SNS()
-      const users = await csvHelper.importUsers(event.Records[0].s3.object.key)
+    const sns = new AWS.SNS()
+    const users = await csvHelper.importUsers(event.Records[0].s3.object.key)
 
-      await Promise.all(users.map(async (user) => {
+    await Promise.all(users.map(async (user) => {
+      try {
         const message = {
           Message: JSON.stringify(user),
           TopicArn: process.env.userRegisteredTopicArn,
@@ -34,12 +34,13 @@ class SubscriptionsHandler {
         }
 
         await sns.publish(message).promise()
-      }))
+      } catch(err) {
+        // TODO: Save error cases to an SQS queue for post processing
+        console.log("Error ->", err.message)
+      }
+    }))
 
-      callback(null, 'CSV processed successfully!')
-    } catch(err) {
-      callback(err)
-    }
+    callback(null, 'CSV processed successfully!')
   }
 }
 

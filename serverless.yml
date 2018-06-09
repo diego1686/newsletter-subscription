@@ -101,7 +101,7 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         StreamSpecification:
-          StreamViewType: NEW_IMAGE
+          StreamViewType: NEW_AND_OLD_IMAGES
 
     UserCreatedTopic:
       Type: AWS::SNS::Topic

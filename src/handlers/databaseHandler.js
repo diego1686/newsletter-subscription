@@ -17,21 +17,37 @@ class DatabaseHandler {
       await dynamoDBClient.put(newUser).promise()
       callback(null, "User saved!")
     } catch (err) {
-      callback(err)
+      // TODO: Save error cases to an SQS queue for post processing
+      callback(null, `Error -> ${err.message}`)
     }
   }
 
   static async processStream(event, context, callback) {
     const sns = new AWS.SNS()
 
-    const message = {
-      Message: JSON.stringify(event.Records[0].dynamodb.NewImage),
-      TopicArn: process.env.userCreatedTopicArn,
-      Subject: "User created!"
-    }
+    await Promise.all(event.Records.map(async (record) => {
+      try {
+        if (record.eventName == 'INSERT') {
+          const user = {
+            name: record.dynamodb.NewImage.name.S,
+            email: record.dynamodb.NewImage.email.S
+          }
 
-    await sns.publish(message).promise()
-    callback(null, "OK")
+          const message = {
+            Message: JSON.stringify(user),
+            TopicArn: process.env.userCreatedTopicArn,
+            Subject: "User created!"
+          }
+
+          await sns.publish(message).promise()
+        }
+      } catch (err) {
+        // TODO: Save error cases to an SQS queue for post processing
+        console.log("Error ->", err.message)
+      }
+    }))
+
+    callback(null, "Done!")
   }
 }
 
