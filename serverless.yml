@@ -5,7 +5,7 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: us-east-1
-  timeout: 120
+  timeout: 30
   iamRoleStatements:
     - Effect: 'Allow'
       Action:
@@ -34,13 +34,14 @@ custom:
   userCreatedTopic: "newsletter-user-created-${self:custom.stage}"
   usersTable: "newsletter-users-${self:custom.stage}"
   csvBucket: "newsletter-users-${self:custom.stage}"
+  welcomeEmailQueue: "newsletter-welcome-email-${self:custom.stage}"
   serverless-offline:
     skipCacheInvalidation: true
 
 functions:
   # ---- Subscription Services ----
   subscribeFromAPI:
-    handler: src/handlers/subscriptionsHandler.subscribeFromAPI
+    handler: src/handlers/subscription/subscribeFromAPI.handler
     environment:
       userRegisteredTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userRegisteredTopic}" ] ]  }
     events:
@@ -51,7 +52,7 @@ functions:
           warmup: true
 
   subscribeFromCSV:
-    handler: src/handlers/subscriptionsHandler.subscribeFromCSV
+    handler: src/handlers/subscription/subscribeFromCSV.handler
     environment:
       userRegisteredTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userRegisteredTopic}" ] ]  }
       csvBucket: ${self:custom.csvBucket}
@@ -64,14 +65,14 @@ functions:
 
   # ---- Database Services ----
   saveUser:
-    handler: src/handlers/databaseHandler.saveUser
+    handler: src/handlers/database/saveUser.handler
     environment:
       usersTable: ${self:custom.usersTable}
     events:
       - sns: ${self:custom.userRegisteredTopic}
 
   processStream:
-    handler: src/handlers/databaseHandler.processStream
+    handler: src/handlers/database/processStream.handler
     environment:
       userCreatedTopicArn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userCreatedTopic}" ] ]  }
     events:
@@ -107,6 +108,11 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.userCreatedTopic}
+
+    WelcomeEmailQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:custom.welcomeEmailQueue}
 
 plugins:
   - serverless-offline
