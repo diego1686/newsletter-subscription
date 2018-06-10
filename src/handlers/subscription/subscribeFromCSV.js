@@ -1,4 +1,3 @@
-const R = require('lambdaw/apigateway')
 const AWS = require('aws-sdk')
 const csvHelper = require('../../helpers/csvHelper')
 
