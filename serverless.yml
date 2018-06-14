@@ -19,12 +19,17 @@ provider:
 
     - Effect: 'Allow'
       Action:
-        - SNS:Publish
+        - SNS:*
       Resource: '*'
 
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+      Resource: '*'
+
+    - Effect: Allow
+      Action:
+        - SQS:*
       Resource: '*'
 
 custom:
@@ -85,6 +90,16 @@ functions:
               - DynamoDbTable
               - StreamArn
 
+# ---- Welcome Email Services ----
+  receiveMessages:
+    handler: src/handlers/welcomeEmail/receiveMessages.handler
+    environment:
+      SENDGRID_API_KEY: ''
+      queueURL:
+        Ref: WelcomeEmailQueue
+    events:
+      - schedule: rate(1 minute)
+
 # ---- AWS Resources ----
 resources:
   Resources:
@@ -108,11 +123,27 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.userCreatedTopic}
+        Subscription:
+          - Endpoint: { "Fn::GetAtt": ["WelcomeEmailQueue","Arn"] }
+            Protocol: sqs
 
     WelcomeEmailQueue:
-      Type: "AWS::SQS::Queue"
+      Type: AWS::SQS::Queue
       Properties:
         QueueName: ${self:custom.welcomeEmailQueue}
+
+    WelcomeQueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        Queues:
+          - Ref: WelcomeEmailQueue
+        PolicyDocument:
+          Statement:
+            - Effect: Allow
+              Principal: "*"
+              Action:
+                - SQS:SendMessage
+              Resource: { "Fn::GetAtt": ["WelcomeEmailQueue","Arn"] }
 
 plugins:
   - serverless-offline
