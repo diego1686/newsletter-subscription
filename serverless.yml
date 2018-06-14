@@ -4,7 +4,7 @@ provider:
   name: aws
   runtime: nodejs8.10
   stage: dev
-  region: us-east-1
+  region: us-east-2
   timeout: 30
   iamRoleStatements:
     - Effect: 'Allow'
@@ -35,11 +35,12 @@ provider:
 custom:
   stage: ${opt:stage, opt:s, self:provider.stage}
   region: ${opt:region, self:provider.region}
-  userRegisteredTopic: "newsletter-user-registered-${self:custom.stage}"
-  userCreatedTopic: "newsletter-user-created-${self:custom.stage}"
-  usersTable: "newsletter-users-${self:custom.stage}"
-  csvBucket: "newsletter-users-${self:custom.stage}"
-  welcomeEmailQueue: "newsletter-welcome-email-${self:custom.stage}"
+  prefix: "newsletter-${self:custom.stage}-${self:custom.region}"
+  userRegisteredTopic: "${self:custom.prefix}-user-registered"
+  userCreatedTopic: "${self:custom.prefix}-user-created"
+  usersTable: "${self:custom.prefix}-users"
+  csvBucket: "${self:custom.prefix}-users"
+  welcomeEmailQueue: "${self:custom.prefix}-welcome-email"
   serverless-offline:
     skipCacheInvalidation: true
 
