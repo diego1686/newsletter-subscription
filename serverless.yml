@@ -95,7 +95,7 @@ functions:
   receiveMessages:
     handler: src/handlers/welcomeEmail/receiveMessages.handler
     environment:
-      SENDGRID_API_KEY: ''
+      sendgridAPIKey: ''
       queueURL:
         Ref: WelcomeEmailQueue
     events:

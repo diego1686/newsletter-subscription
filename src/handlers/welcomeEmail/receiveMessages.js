@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk')
 const sgMail = require('@sendgrid/mail')
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+sgMail.setApiKey(process.env.sendgridAPIKey)
 
 module.exports.handler = async (event, context, callback) => {
   const sqs = new AWS.SQS()
