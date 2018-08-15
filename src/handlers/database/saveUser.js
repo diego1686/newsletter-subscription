@@ -9,7 +9,8 @@ module.exports.handler = async (event, context, callback) => {
       TableName: process.env.usersTable,
       Item: {
         email: user.email,
-        name: user.name
+        name: user.name,
+        confirmed: false
       }
     }
 

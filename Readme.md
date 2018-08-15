@@ -9,18 +9,15 @@
 
 ## How to deploy?
 - Install dependencies -> `npm i`
-- Set the `sendgridAPIKey` and the schedule rate (default 1 minute) on the `receiveMessages` function.
+- Set the `sendgridAPIKey` on the `sender` function.
 
 ```yml
-# ---- Welcome Email Services ----
-  receiveMessages:
-    handler: src/handlers/welcomeEmail/receiveMessages.handler
+# ---- Mailer ----
+  sendEmail:
+    handler: src/handlers/mailer/sendEmail.handler
     environment:
-      sendgridAPIKey: 'YOUR_KEY'
-      queueURL:
-        Ref: WelcomeEmailQueue
-    events:
-      - schedule: rate(1 minute)
+      sendgridAPIKey: ''
+    ...
 ```
 
 - Run `sls deploy`
@@ -29,7 +26,6 @@
 Just run `sls remove`. If you have non-empty s3 buckets, you can add the `--force` option (use it carefully).
 
 ## TODO
-- OneSignal Client
 - Improve IAMRole
 - Add tests
-- Improve Mailer
+- Manage batch errors in mailer

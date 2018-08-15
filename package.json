@@ -9,10 +9,10 @@
     "node": "8.7.0"
   },
   "devDependencies": {
-    "serverless": "^1.27.3",
-    "serverless-dotenv-plugin": "^1.0.1",
-    "serverless-offline": "^3.20.3",
-    "serverless-plugin-warmup": "^3.1.0-rc.1"
+    "serverless": "^1.30.0",
+    "serverless-dotenv-plugin": "^1.2.0",
+    "serverless-offline": "^3.25.7",
+    "serverless-plugin-warmup": "^3.6.2-rc.1"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.2.1",

@@ -40,7 +40,7 @@ custom:
   userCreatedTopic: "${self:custom.prefix}-user-created"
   usersTable: "${self:custom.prefix}-users"
   csvBucket: "${self:custom.prefix}-users"
-  welcomeEmailQueue: "${self:custom.prefix}-welcome-email"
+  mailerQueue: "${self:custom.prefix}-mailer"
   serverless-offline:
     skipCacheInvalidation: true
 
@@ -91,15 +91,29 @@ functions:
               - DynamoDbTable
               - StreamArn
 
-# ---- Welcome Email Services ----
-  receiveMessages:
-    handler: src/handlers/welcomeEmail/receiveMessages.handler
+# ---- Welcome Email ----
+  createWelcomeEmail:
+    handler: src/handlers/welcomeEmail/create.handler
+    environment:
+      queueURL:
+        Ref: MailerQueue
+    events:
+      - sns:
+          arn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userCreatedTopic}" ] ]  }
+          topicName: ${self:custom.userCreatedTopic}
+
+# ---- Mailer ----
+  sendEmail:
+    handler: src/handlers/mailer/sendEmail.handler
     environment:
       sendgridAPIKey: ''
-      queueURL:
-        Ref: WelcomeEmailQueue
     events:
-      - schedule: rate(1 minute)
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - MailerQueue
+              - Arn
+          batchSize: 10
 
 # ---- AWS Resources ----
 resources:
@@ -124,27 +138,24 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:custom.userCreatedTopic}
-        Subscription:
-          - Endpoint: { "Fn::GetAtt": ["WelcomeEmailQueue","Arn"] }
-            Protocol: sqs
 
-    WelcomeEmailQueue:
+    MailerQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: ${self:custom.welcomeEmailQueue}
+        QueueName: ${self:custom.mailerQueue}
 
-    WelcomeQueuePolicy:
+    MailerQueuePolicy:
       Type: AWS::SQS::QueuePolicy
       Properties:
         Queues:
-          - Ref: WelcomeEmailQueue
+          - Ref: MailerQueue
         PolicyDocument:
           Statement:
             - Effect: Allow
               Principal: "*"
               Action:
                 - SQS:SendMessage
-              Resource: { "Fn::GetAtt": ["WelcomeEmailQueue","Arn"] }
+              Resource: { "Fn::GetAtt": ["MailerQueue","Arn"] }
 
 plugins:
   - serverless-offline
