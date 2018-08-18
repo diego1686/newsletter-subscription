@@ -35,9 +35,9 @@ provider:
         - SQS:*
       Resource: '*'
 
-    - Effect: "Allow"
+    - Effect: 'Allow'
       Action:
-        - "states:StartExecution"
+        - 'states:StartExecution'
       Resource:
         - "*"
 
@@ -107,15 +107,14 @@ functions:
     environment:
       stateMachineARN: { "Fn::Join" : ["", ["arn:aws:states:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":stateMachine:engagingStateMachine" ] ]  }
     events:
-      - sns:
-          arn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userCreatedTopic}" ] ]  }
-          topicName: ${self:custom.userCreatedTopic}
-
-  createWelcomeEmail:
-    handler: src/handlers/engagingStateMachine/createWelcomeEmail.handler
-    environment:
-      queueURL:
-        Ref: MailerQueue
+      - stream:
+          type: dynamodb
+          batchSize: 10
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - UsersDynamoDbTable
+              - StreamArn
 
   fetchSubscriptorStatus:
     handler: src/handlers/engagingStateMachine/fetchSubscriptorStatus.handler
@@ -148,12 +147,8 @@ stepFunctions:
       name: engagingStateMachine
       definition:
         Comment: "State machine to engage new subscriptors"
-        StartAt: SendWelcomeEmail
+        StartAt: WaitConfirmation
         States:
-          SendWelcomeEmail:
-            Type: Task
-            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-createWelcomeEmail"
-            Next: WaitConfirmation
           WaitConfirmation:
             Type: Wait
             Seconds: 60
