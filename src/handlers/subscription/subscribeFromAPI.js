@@ -8,12 +8,13 @@ module.exports.handler = async (event, context, callback) => {
     const message = {
       Message: event.body,
       TopicArn: process.env.userRegisteredTopicArn,
-      Subject: "User registered from HTTP API"
+      Subject: 'User registered from HTTP API'
     }
 
     await sns.publish(message).promise()
-    response = new R(200, { message: "Thanks!" }).WithCORS('*').toJSON()
+    response = new R(200, { message: 'Thanks!' }).WithCORS('*').toJSON()
   } catch(err) {
+    console.log('Error ->', err.message)
     response = new R(500, { message: err.message })
   }
   callback(null, response)

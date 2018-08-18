@@ -12,15 +12,17 @@ module.exports.handler = async (event, context, callback) => {
         to: data.to,
         from: 'noreply@lateralview.co',
         subject: data.subject,
-        text: data.text,
         html: data.html
       }
+
       sgMail.send(mail)
     }))
 
+    console.log(`${event.Records.length} emails sent!`)
     callback(null, 'Queue processed successfully!')
   } catch (err) {
     // TODO: Save error cases to an SQS queue for post processing
+    console.log('Error ->', err.message)
     callback(null, `Error -> ${err.message}`)
   }
 }

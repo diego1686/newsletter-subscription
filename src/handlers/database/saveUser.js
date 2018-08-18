@@ -15,9 +15,10 @@ module.exports.handler = async (event, context, callback) => {
     }
 
     await dynamoDBClient.put(newUser).promise()
-    callback(null, "User created!")
+    callback(null, 'User created!')
   } catch (err) {
     // TODO: Save error cases to an SQS queue for post processing
+    console.log('Error ->', err.message)
     callback(null, `Error -> ${err.message}`)
   }
 }

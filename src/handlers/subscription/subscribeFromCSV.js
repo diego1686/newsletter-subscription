@@ -10,20 +10,20 @@ module.exports.handler = async (event, context, callback) => {
       const message = {
         Message: JSON.stringify(user),
         TopicArn: process.env.userRegisteredTopicArn,
-        Subject: "User registered from CSV"
+        Subject: 'User registered from CSV'
       }
 
       await sns.publish(message).promise()
     } catch(err) {
       // TODO: Save error cases to an SQS queue for post processing
-      console.log("Error ->", err.message)
+      console.log('Error ->', err.message)
     }
   }))
 
   callback(null, 'CSV processed successfully!')
 }
 
-function importUsers(key) {
+async function importUsers(key) {
   const s3 = new AWS.S3()
   const s3Response = await s3.getObject({
     Bucket: process.env.csvBucket,
