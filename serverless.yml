@@ -25,6 +25,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+        - dynamodb:GetItem
         - dynamodb:ListStreams
         - dynamodb:DescribeStream
       Resource: '*'
@@ -33,6 +34,12 @@ provider:
       Action:
         - SQS:*
       Resource: '*'
+
+    - Effect: "Allow"
+      Action:
+        - "states:StartExecution"
+      Resource:
+        - "*"
 
 custom:
   stage: ${opt:stage, opt:s, self:provider.stage}
@@ -94,6 +101,33 @@ functions:
               - UsersDynamoDbTable
               - StreamArn
 
+# ---- State Machine Services ----
+  launchStateMachine:
+    handler: src/handlers/engagingStateMachine/launch.handler
+    environment:
+      stateMachineARN: { "Fn::Join" : ["", ["arn:aws:states:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":stateMachine:engagingStateMachine" ] ]  }
+    events:
+      - sns:
+          arn: { "Fn::Join" : ["", ["arn:aws:sns:${self:custom.region}:", { "Ref" : "AWS::AccountId" }, ":${self:custom.userCreatedTopic}" ] ]  }
+          topicName: ${self:custom.userCreatedTopic}
+
+  createWelcomeEmail:
+    handler: src/handlers/engagingStateMachine/createWelcomeEmail.handler
+    environment:
+      queueURL:
+        Ref: MailerQueue
+
+  fetchSubscriptorStatus:
+    handler: src/handlers/engagingStateMachine/fetchSubscriptorStatus.handler
+    environment:
+      usersTable: ${self:custom.usersTable}
+
+  createReminderEmail:
+    handler: src/handlers/engagingStateMachine/createReminderEmail.handler
+    environment:
+      queueURL:
+        Ref: MailerQueue
+
 # ---- Mailer ----
   sendEmail:
     handler: src/handlers/mailer/sendEmail.handler
@@ -106,6 +140,41 @@ functions:
               - MailerQueue
               - Arn
           batchSize: 10
+
+# ---- State Machines ----
+stepFunctions:
+  stateMachines:
+    engagingStateMachine:
+      name: engagingStateMachine
+      definition:
+        Comment: "State machine to engage new subscriptors"
+        StartAt: SendWelcomeEmail
+        States:
+          SendWelcomeEmail:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-createWelcomeEmail"
+            Next: WaitConfirmation
+          WaitConfirmation:
+            Type: Wait
+            Seconds: 60
+            Next: FetchSubscriptorStatus
+          FetchSubscriptorStatus:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-fetchSubscriptorStatus"
+            Next: ChoiceState
+          ChoiceState:
+            Type: Choice
+            Choices:
+              - Variable: $.confirmed
+                BooleanEquals: false
+                Next: SendReminderEmail
+            Default: Done
+          SendReminderEmail:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-createReminderEmail"
+            End: true
+          Done:
+            Type: Succeed
 
 # ---- AWS Resources ----
 resources:
@@ -147,3 +216,5 @@ resources:
 plugins:
   - serverless-offline
   - serverless-plugin-warmup
+  - serverless-step-functions
+  - serverless-pseudo-parameters

@@ -12,7 +12,9 @@
     "serverless": "^1.30.0",
     "serverless-dotenv-plugin": "^1.2.0",
     "serverless-offline": "^3.25.7",
-    "serverless-plugin-warmup": "^3.6.2-rc.1"
+    "serverless-plugin-warmup": "^3.6.2-rc.1",
+    "serverless-pseudo-parameters": "^2.1.0",
+    "serverless-step-functions": "^1.6.1"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.2.1",
