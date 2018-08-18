@@ -4,9 +4,6 @@
 - [Node.js](https://nodejs.org)
 - [Serverless framework](https://serverless.com/)
 
-## How it works?
-![Screenshot](https://i.imgur.com/fddI5Uo.png)
-
 ## How to deploy?
 - Install dependencies -> `npm i`
 - Set the `sendgridAPIKey` on the `sender` function.

@@ -18,8 +18,6 @@ module.exports.handler = async (event, context, callback) => {
         const mail = {
           to: user.email,
           subject: 'Bienvenido!',
-          text: `Bienvenido a nuestro newsletter, ${user.name}!
-          Por favor confirmá tu email en el siguiente enlace -> http://www.enlacefalso.com`,
           html: `<p>Bienvenido a nuestro newsletter, <b>${user.name}</b>!</p>
           <p>Por favor confirmá tu email en el siguiente enlace -> http://www.enlacefalso.com</p>`
         }

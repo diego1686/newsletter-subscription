@@ -34,7 +34,9 @@ async function importUsers(key) {
   const out = Papa.parse(csvData, { skipEmptyLines: true })
   const users = out.data.filter((r, i) => i > 0).map(r => ({
     email: r[0],
-    name: r[1]
+    name: r[1],
+    confirmed: true,
+    source: 'csv'
   }))
 
   return users

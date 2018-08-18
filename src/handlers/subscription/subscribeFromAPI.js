@@ -4,9 +4,18 @@ const AWS = require('aws-sdk')
 module.exports.handler = async (event, context, callback) => {
   let response
   try {
+    const body = JSON.parse(event.body)
+
+    const data = {
+      email: body.email,
+      name: body.name,
+      confirmed: false,
+      source: 'api'
+    }
+
     const sns = new AWS.SNS()
     const message = {
-      Message: event.body,
+      Message: JSON.stringify(data),
       TopicArn: process.env.userRegisteredTopicArn,
       Subject: 'User registered from HTTP API'
     }

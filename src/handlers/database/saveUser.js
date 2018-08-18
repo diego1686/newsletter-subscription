@@ -7,11 +7,7 @@ module.exports.handler = async (event, context, callback) => {
 
     const newUser = {
       TableName: process.env.usersTable,
-      Item: {
-        email: user.email,
-        name: user.name,
-        confirmed: false
-      }
+      Item: user
     }
 
     await dynamoDBClient.put(newUser).promise()

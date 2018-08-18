@@ -25,6 +25,8 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+        - dynamodb:ListStreams
+        - dynamodb:DescribeStream
       Resource: '*'
 
     - Effect: Allow
@@ -89,7 +91,7 @@ functions:
           startingPosition: LATEST
           arn:
             Fn::GetAtt:
-              - DynamoDbTable
+              - UsersDynamoDbTable
               - StreamArn
 
 # ---- Mailer ----
@@ -108,7 +110,7 @@ functions:
 # ---- AWS Resources ----
 resources:
   Resources:
-    DynamoDbTable:
+    UsersDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:custom.usersTable}
