@@ -1,5 +1,8 @@
 # Newsletter Subscription - Serverless example
 
+## How it works?	
+![Screenshot](https://i.imgur.com/dPrLp9N.png)
+
 ## Requirements
 - [Node.js](https://nodejs.org)
 - [Serverless framework](https://serverless.com/)
