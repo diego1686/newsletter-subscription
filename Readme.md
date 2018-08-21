@@ -1,7 +1,12 @@
 # Newsletter Subscription - Serverless example
 
 ## How it works?	
+### Users subscription & Welcome email
 ![Screenshot](https://i.imgur.com/dPrLp9N.png)
+
+### Engaging State Machine
+![Screenshot](https://i.imgur.com/qruGQhW.png)
+
 
 ## Requirements
 - [Node.js](https://nodejs.org)
