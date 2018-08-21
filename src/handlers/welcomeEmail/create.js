@@ -14,12 +14,18 @@ module.exports.handler = async (event, context, callback) => {
           email: record.dynamodb.NewImage.email.S
         }
 
+        const confirmed = record.dynamodb.NewImage.confirmed.BOOL
+        let html = `<p>Bienvenido a nuestro newsletter, <b>${user.name}</b>!</p>`
+
+        if (!confirmed) {
+          html += '<p>Por favor confirmá tu email en el siguiente enlace -> http://fake.newsletter.com</p>'
+        }
+
         // Create email
         const mail = {
           to: user.email,
-          subject: 'Bienvenido!',
-          html: `<p>Bienvenido a nuestro newsletter, <b>${user.name}</b>!</p>
-          <p>Por favor confirmá tu email en el siguiente enlace -> http://www.enlacefalso.com</p>`
+          subject: `Bienvenido, ${user.name}!`,
+          html: html
         }
 
         mails.push(mail)

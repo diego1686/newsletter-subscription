@@ -10,7 +10,7 @@ module.exports.handler = async (event, context, callback) => {
       // Send email
       const mail = {
         to: data.to,
-        from: 'noreply@lateralview.co',
+        from: 'noreply@fakenews.co',
         subject: data.subject,
         html: data.html
       }
