@@ -6,15 +6,10 @@
 
 ## How to deploy?
 - Install dependencies -> `npm i`
-- Set the `sendgridAPIKey` on the `sender` function.
+- Create the `SENDGRID_API_KEY` parameter on SSM Parameter Store. You can do this from the AWS Console or using the AWS CLI:
 
-```yml
-# ---- Mailer ----
-  sendEmail:
-    handler: src/handlers/mailer/sendEmail.handler
-    environment:
-      sendgridAPIKey: ''
-    ...
+```
+aws ssm put-parameter --name SENDGRID_API_KEY --type String --value 'API_KEY_HERE' --region us-east-2
 ```
 
 - Run `sls deploy`

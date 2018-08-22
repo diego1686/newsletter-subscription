@@ -98,7 +98,7 @@ functions:
   sendEmail:
     handler: src/handlers/mailer/sendEmail.handler
     environment:
-      sendgridAPIKey: ''
+      sendgridAPIKey: ${ssm:SENDGRID_API_KEY}
     events:
       - sqs:
           arn:
