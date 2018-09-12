@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "deploy": "serverless deploy -v",
-    "test": "NODE_ENV=test mocha test"
+    "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha"
   },
   "engines": {
     "node": "8.7.0"
@@ -13,6 +13,7 @@
     "aws-sdk-mock": "^4.1.0",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
     "serverless": "^1.30.0",
     "serverless-dotenv-plugin": "^1.2.0",
     "serverless-offline": "^3.25.7",
