@@ -6,9 +6,9 @@ const Papa = require('papaparse')
  * 
  * @param {Object} event
  * @param {Object[]} event.Records
- * @param {Object} event.Records.s3
- * @param {Object} event.Records.s3.object
- * @param {String} event.Records.s3.object.key
+ * @param {Object} event.Records[].s3
+ * @param {Object} event.Records[].s3.object
+ * @param {String} event.Records[].s3.object.key
  */
 module.exports.handler = async (event) => {
   const sns = new AWS.SNS()

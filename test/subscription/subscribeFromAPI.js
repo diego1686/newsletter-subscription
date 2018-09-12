@@ -13,7 +13,7 @@ describe('subscribeFromAPI', () => {
     AWSMock.restore('SNS', 'publish')
   })
 
-  it('Should subscribe from CSV successfully', async () => {
+  it('Should subscribe from API successfully', async () => {
     const response = await subscribeFromAPI.handler({
       body: JSON.stringify({
         email: 'test@lateralview.net',
