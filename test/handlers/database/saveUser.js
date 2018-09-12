@@ -1,7 +1,7 @@
 const {expect} = require('chai')
 const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
-const saveUser = require('../../src/handlers/database/saveUser')
+const saveUser = require('../../../src/handlers/database/saveUser')
 const sinon = require('sinon')
 
 describe('saveUser', () => {

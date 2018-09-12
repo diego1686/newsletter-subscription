@@ -3,7 +3,7 @@ const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
 const fs = require('fs')
 const path = require('path')
-const subscribeFromCSV = require('../../src/handlers/subscription/subscribeFromCSV')
+const subscribeFromCSV = require('../../../src/handlers/subscription/subscribeFromCSV')
 
 describe('subscribeFromCSV', () => {
   beforeEach(async () => {
