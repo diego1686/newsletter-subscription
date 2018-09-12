@@ -1,5 +1,4 @@
 const {expect} = require('chai')
-const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
 const launch = require('../../../src/handlers/engagingStateMachine/launch')
 const sinon = require('sinon')
@@ -7,7 +6,6 @@ const sinon = require('sinon')
 describe('engagingStateMachine - launch', () => {
   let spyStateMachine
   beforeEach(async () => {
-    AWSMock.setSDKInstance(AWS)
     spyStateMachine = sinon.spy((params, callback) => {
       callback(null, "State machine successfully started");
     })

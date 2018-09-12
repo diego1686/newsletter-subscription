@@ -1,6 +1,12 @@
 const AWS = require('aws-sdk')
 
-module.exports.handler = async (event, context, callback) => {
+/**
+ * @desc State Machine initial event
+ * 
+ * @param {Object} event
+ * @param {String} event.email Email of the user
+ */
+module.exports.handler = async (event) => {
   try {
     const dynamoDBClient = new AWS.DynamoDB()
 
@@ -12,14 +18,14 @@ module.exports.handler = async (event, context, callback) => {
     };
 
     var result = await dynamoDBClient.getItem(input).promise()
-    var data = { email: result.Item.email.S,
+    return {
+      email: result.Item.email.S,
       confirmed: result.Item.confirmed.BOOL,
-      name: result.Item.name.S }
-
-    callback(null, data)
+      name: result.Item.name.S
+    }
   } catch (err) {
-    console.log(err)
+    console.log(`Error -> ${err.message}`)
     // TODO: Save error cases to an SQS queue for post processing
-    callback(null, `Error -> ${err.message}`)
+    throw err
   }
 }

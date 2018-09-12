@@ -1,5 +1,4 @@
 const {expect} = require('chai')
-const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
 const fs = require('fs')
 const path = require('path')
@@ -7,7 +6,6 @@ const subscribeFromCSV = require('../../../src/handlers/subscription/subscribeFr
 
 describe('subscription - subscribeFromCSV', () => {
   beforeEach(async () => {
-    AWSMock.setSDKInstance(AWS)
     const csvPath = path.join(__dirname, "./test-user.csv")
     const file = fs.readFileSync(csvPath)
     AWSMock.mock('S3', 'getObject', {Body: Buffer.from(file)})

@@ -1,5 +1,4 @@
 const {expect} = require('chai')
-const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
 const saveUser = require('../../../src/handlers/database/saveUser')
 const sinon = require('sinon')
@@ -7,7 +6,6 @@ const sinon = require('sinon')
 describe('database - saveUser', () => {
   let spyDynamo
   beforeEach(async () => {
-    AWSMock.setSDKInstance(AWS)
     spyDynamo = sinon.spy((params, callback) => {
       callback(null, "successfully put item in database");
     })
