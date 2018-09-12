@@ -55,8 +55,6 @@ module.exports.handler = async (event) => {
         }),
         QueueUrl: process.env.queueURL
       }).promise()
-
-      console.log(`Created ${mails.length} emails!`)
     }
 
     return {

@@ -4,7 +4,7 @@ const AWSMock = require('aws-sdk-mock')
 const create = require('../../../src/handlers/welcomeEmail/create')
 const sinon = require('sinon')
 
-describe('create', () => {
+describe('welcomeEmail - create', () => {
   let spySQS
   beforeEach(async () => {
     AWSMock.setSDKInstance(AWS)

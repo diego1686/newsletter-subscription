@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const subscribeFromCSV = require('../../../src/handlers/subscription/subscribeFromCSV')
 
-describe('subscribeFromCSV', () => {
+describe('subscription - subscribeFromCSV', () => {
   beforeEach(async () => {
     AWSMock.setSDKInstance(AWS)
     const csvPath = path.join(__dirname, "./test-user.csv")

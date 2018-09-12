@@ -4,7 +4,7 @@ const AWSMock = require('aws-sdk-mock')
 const saveUser = require('../../../src/handlers/database/saveUser')
 const sinon = require('sinon')
 
-describe('saveUser', () => {
+describe('database - saveUser', () => {
   let spyDynamo
   beforeEach(async () => {
     AWSMock.setSDKInstance(AWS)

@@ -3,7 +3,7 @@ const AWS = require('aws-sdk')
 const AWSMock = require('aws-sdk-mock')
 const subscribeFromAPI = require('../../../src/handlers/subscription/subscribeFromAPI')
 
-describe('subscribeFromAPI', () => {
+describe('subscription - subscribeFromAPI', () => {
   beforeEach(async () => {
     AWSMock.setSDKInstance(AWS)
     AWSMock.mock('SNS', 'publish', 'Success !!!')
