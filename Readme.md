@@ -22,10 +22,12 @@ aws ssm put-parameter --name SENDGRID_API_KEY --type String --value 'API_KEY_HER
 
 - Run `sls deploy`
 
+## How to run tests?
+Just run `npm test`
+
 ## How to remove the Stack?
 Just run `sls remove`. If you have non-empty s3 buckets, you can add the `--force` option (use it carefully).
 
 ## TODO
 - Improve IAMRole
-- Add tests
 - Manage batch errors in mailer
