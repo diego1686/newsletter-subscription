@@ -1,10 +1,18 @@
 const AWS = require('aws-sdk')
 const Papa = require('papaparse')
 
-module.exports.handler = async (event, context, callback) => {
+/**
+ * @desc S3 Event to subscribe multiple users
+ * 
+ * @param {Object} event
+ * @param {Object[]} event.Records
+ * @param {Object} event.Records[].s3
+ * @param {Object} event.Records[].s3.object
+ * @param {String} event.Records[].s3.object.key
+ */
+module.exports.handler = async (event) => {
   const sns = new AWS.SNS()
   const users = await importUsers(event.Records[0].s3.object.key)
-
   await Promise.all(users.map(async (user) => {
     try {
       const message = {
@@ -14,13 +22,18 @@ module.exports.handler = async (event, context, callback) => {
       }
 
       await sns.publish(message).promise()
+      return user
     } catch(err) {
       // TODO: Save error cases to an SQS queue for post processing
       console.log('Error ->', err.message)
+      throw err
     }
   }))
 
-  callback(null, 'CSV processed successfully!')
+  return {
+    message: 'CSV processed successfully!',
+    users: users
+  }
 }
 
 async function importUsers(key) {
@@ -29,7 +42,6 @@ async function importUsers(key) {
     Bucket: process.env.csvBucket,
     Key: key
   }).promise()
-
   const csvData = s3Response.Body.toString()
   const out = Papa.parse(csvData, { skipEmptyLines: true })
   const users = out.data.filter((r, i) => i > 0).map(r => ({

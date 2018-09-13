@@ -1,7 +1,19 @@
 const AWS = require('aws-sdk')
 const shortid = require('shortid')
 
-module.exports.handler = async (event, context, callback) => {
+/**
+ * @desc DynamoDB Stream Event to publish a welcome email into a Mailer Queue
+ * 
+ * @param {Object} event
+ * @param {Object[]} event.Records
+ * @param {String} event.Records[].eventName Name of the event
+ * @param {Object} event.Records[].dynamodb
+ * @param {Object} event.Records[].dynamodb.NewImage
+ * @param {String} event.Records[].dynamodb.NewImage.name.S Name of the user
+ * @param {String} event.Records[].dynamodb.NewImage.email.S Email of the user
+ * @param {String} event.Records[].dynamodb.NewImage.confirmed.BOOL Confirmed flag
+ */
+module.exports.handler = async (event) => {
   try {
     const sqs = new AWS.SQS()
     let mails = []
@@ -43,14 +55,14 @@ module.exports.handler = async (event, context, callback) => {
         }),
         QueueUrl: process.env.queueURL
       }).promise()
-
-      console.log(`Created ${mails.length} emails!`)
     }
 
-    callback(null, 'Mails created!')
+    return {
+      message: 'Mails created!'
+    }
   } catch (err) {
     // TODO: Save error cases to an SQS queue for post processing
     console.log('Error ->', err.message)
-    callback(null, `Error -> ${err.message}`)
+    throw err
   }
 }

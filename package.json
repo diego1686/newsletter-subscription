@@ -3,22 +3,30 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "deploy": "serverless deploy -v"
+    "deploy": "serverless deploy -v",
+    "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha"
   },
   "engines": {
     "node": "8.7.0"
   },
   "devDependencies": {
+    "aws-sdk-mock": "^4.1.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
     "serverless": "^1.30.0",
     "serverless-dotenv-plugin": "^1.2.0",
     "serverless-offline": "^3.25.7",
     "serverless-plugin-warmup": "^3.6.2-rc.1",
     "serverless-pseudo-parameters": "^2.1.0",
-    "serverless-step-functions": "^1.6.1"
+    "serverless-step-functions": "^1.6.1",
+    "sinon": "^6.2.0",
+    "sinon-chai": "^3.2.0"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.2.1",
     "aws-sdk": "^2.241.1",
+    "dotenv": "^6.0.0",
     "lambdaw": "^1.0.4",
     "papaparse": "^4.4.0",
     "shortid": "^2.2.13"
