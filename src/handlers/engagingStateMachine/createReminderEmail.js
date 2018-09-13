@@ -1,6 +1,13 @@
 const AWS = require('aws-sdk')
 
-module.exports.handler = async (event, context, callback) => {
+/**
+ * @desc Create a reminder email to subscribe into the newsletter
+ * 
+ * @param {Object} event
+ * @param {String} event.email Email of the user
+ * @param {String} event.name Name of the user
+ */
+module.exports.handler = async (event) => {
   try {
     const sqs = new AWS.SQS()
 
@@ -18,9 +25,9 @@ module.exports.handler = async (event, context, callback) => {
       MessageBody: JSON.stringify(mail)
     }).promise()
 
-    callback(null, { email: event.email })
+    return { email: event.email }
   } catch (err) {
     // TODO: Save error cases to an SQS queue for post processing
-    callback(null, `Error -> ${err.message}`)
+    throw err
   }
 }

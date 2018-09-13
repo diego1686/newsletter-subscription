@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 
 /**
- * @desc State Machine initial event
+ * @desc Fetch subscriptor status
  * 
  * @param {Object} event
  * @param {String} event.email Email of the user
