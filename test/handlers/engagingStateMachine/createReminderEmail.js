@@ -16,7 +16,7 @@ describe('engagingStateMachine - createReminderEmail', () => {
     AWSMock.restore('SQS', 'sendMessage')
   })
 
-  it('Should put a batch of mails into the queue', async () => {
+  it('Should create an email reminder successfully', async () => {
     const user = {
       email: 'test1@lateralview.net',
       name: 'Test1 LV'

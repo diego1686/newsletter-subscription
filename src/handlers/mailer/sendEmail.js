@@ -2,7 +2,19 @@ const AWS = require('aws-sdk')
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.sendgridAPIKey)
 
-module.exports.handler = async (event, context, callback) => {
+
+/**
+ * @desc Mailer
+ * 
+ * @param {Object} event
+ * @param {Object[]} event.Records
+ * @param {String} event.Records[].body Serialized email
+ * @param {String} event.Records[].body.to
+ * @param {String} [event.Records[].body.from]
+ * @param {String} event.Records[].subject
+ * @param {String} event.Records[].html
+ */
+module.exports.handler = async (event) => {
   try {
     await Promise.all(event.Records.map(async (message) => {
       const data = JSON.parse(message.body)
@@ -10,7 +22,7 @@ module.exports.handler = async (event, context, callback) => {
       // Send email
       const mail = {
         to: data.to,
-        from: 'noreply@fakenews.co',
+        from: data.from || 'noreply@fakenews.co',
         subject: data.subject,
         html: data.html
       }
@@ -18,11 +30,11 @@ module.exports.handler = async (event, context, callback) => {
       sgMail.send(mail)
     }))
 
-    console.log(`${event.Records.length} emails sent!`)
-    callback(null, 'Queue processed successfully!')
+    return {
+      message: 'Queue processed successfully!'
+    }
   } catch (err) {
     // TODO: Save error cases to an SQS queue for post processing
-    console.log('Error ->', err.message)
-    callback(null, `Error -> ${err.message}`)
+    throw err
   }
 }
